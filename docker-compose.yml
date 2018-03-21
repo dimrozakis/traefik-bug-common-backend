@@ -1,0 +1,31 @@
+version: '2'
+services:
+  traefik:
+    image: traefik
+    command:
+      - --logLevel=DEBUG
+      - --accesslog
+      - --accesslog.format=json
+      - --api
+      - --api.entrypoint=traefik
+      - --rest
+      - --rest.entrypoint=traefik
+      - --defaultentrypoints=http
+      - --entrypoints=Name:http Address::80
+      - --entrypoints=Name:traefik Address::8080
+    # ports:
+    #   - 1111:80
+    #   - 1112:8080
+  backend:
+    build: backend/
+    # ports:
+    #   - 1113:8000
+    volumes:
+      - ./backend/app.py:/opt/app.py:ro
+  test:
+    build: test/
+    depends_on:
+      - traefik
+      - backend
+    volumes:
+      - ./test/test.sh:/usr/local/bin/test.sh:ro
